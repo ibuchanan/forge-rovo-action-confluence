@@ -4,7 +4,7 @@ import {
   type CreatePageResult,
   type CreatePageResultSet,
   PageBuilder,
-} from "./confluence/zpage";
+} from "./confluence/page";
 
 export async function createPage(payload: CreatePagePayload) {
   console.log(`Rovo sent:

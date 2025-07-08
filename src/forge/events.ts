@@ -1,30 +1,36 @@
-export interface UniquelyIdentifiedObject {
-  id: string;
-}
+import * as z from "zod";
 
-export interface Enabled {
-  enabled: boolean;
-}
+const UniquelyIdentifiedSchema = z.object({
+  id: z.string().min(1),
+});
 
-export interface EventContext {
-  cloudId: string; // The cloud ID.
-  moduleKey: string; // The key identifying the module in the manifest that defines the scheduled trigger function and its frequency.
-  userAccess?: Enabled;
-}
+const EnabledSchema = z.object({
+  enabled: z.boolean(),
+});
 
-export interface App extends UniquelyIdentifiedObject {
-  id: string;
-  version: string;
-  name?: string;
-  ownerAccountId?: string;
-}
+export const EventContextSchema = z.object({
+  cloudId: z.string().uuid(), // v4: z.uuid()
+  moduleKey: z.string().min(1),
+  userAccess: EnabledSchema.optional(),
+});
 
-export interface CommonEvent {
-  context: EventContext;
-  app?: App;
-  environment?: UniquelyIdentifiedObject;
+export type EventContext = z.infer<typeof EventContextSchema>;
+
+const AppSchema = z.object({
+  id: z.string().min(1),
+  version: z.string().min(1),
+  name: z.string().min(1).optional(),
+  ownerAccountId: z.string().min(1).optional(),
+});
+
+export const CommonEventSchema = z.object({
+  context: EventContextSchema,
+  app: AppSchema.optional(),
+  environment: UniquelyIdentifiedSchema.optional(),
   // Undocumented attributes
-  eventType?: string;
-  selfGenerated?: boolean;
-  contextToken?: string;
-}
+  eventType: z.string().optional(),
+  selfGenerated: z.boolean().optional(),
+  contextToken: z.string().optional(),
+});
+
+export type CommonEvent = z.infer<typeof CommonEventSchema>;

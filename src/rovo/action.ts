@@ -1,9 +1,10 @@
-import type { EventContext } from "../forge/events";
+import * as z from "zod";
+import { EventContextSchema } from "../forge/zevents";
 
-interface RovoProductDetail {
-  url: string;
-  resourceType: string;
-}
+const RovoProductDetailSchema = z.object({
+  url: z.string().url(), // v4: z.url()
+  resourceType: z.string().min(1),
+});
 
 /*
 "payload": {
@@ -25,14 +26,14 @@ interface RovoProductDetail {
   }
 }
 */
-interface JiraIssueDetail extends RovoProductDetail {
-  issueKey: string;
-  issueId: string;
-  issueType: string;
-  issueTypeId: number;
-  projectKey: string;
-  projectId: number;
-}
+const JiraIssueDetailSchema = RovoProductDetailSchema.extend({
+  issueKey: z.string().regex(/^([A-Z][A-Z0-9]+-[0-9]+)/),
+  issueId: z.number().int().positive(), // v4: z.int().positive()
+  issueType: z.string().min(1),
+  issueTypeId: z.number().int().positive(), // v4: z.int().positive()
+  projectKey: z.string().min(1), // v4: z.string().uppercase().min(1)
+  projectId: z.number().int().positive(), // v4: z.int().positive()
+});
 
 /*
 "payload": {
@@ -51,13 +52,15 @@ interface JiraIssueDetail extends RovoProductDetail {
   }
 }
 */
-interface ConfluenceDetail extends RovoProductDetail {
-  contentId: string;
-  spaceKey: string;
-  spaceId: string;
-}
+const ConfluenceDetailSchema = RovoProductDetailSchema.extend({
+  contentId: z.string().min(1),
+  spaceKey: z.string().min(1),
+  spaceId: z.string().min(1),
+});
 
-export interface RovoContext extends EventContext {
-  jira?: JiraIssueDetail;
-  confluence?: ConfluenceDetail;
-}
+export const RovoContextSchema = EventContextSchema.extend({
+  jira: JiraIssueDetailSchema.optional(),
+  confluence: ConfluenceDetailSchema.optional(),
+});
+
+export type RovoContext = z.infer<typeof RovoContextSchema>;
