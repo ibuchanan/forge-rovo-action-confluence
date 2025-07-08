@@ -1,0 +1,111 @@
+app:
+  id: ari:cloud:ecosystem::app/a5fd9d63-7af7-4d92-95a2-7ef2f682f9e1
+  runtime:
+    architecture: arm64
+    memoryMB: 256
+    name: nodejs22.x
+modules:
+  rovo:agent:
+    - key: forge-rovo-action-confluence
+      name: Forge Rovo Confluence Action
+      description: A simple agent to demonstrate the use of actions.
+      actions:
+        - create-page
+        - update-page
+        - add-comment
+      prompt: resource:agent-prompts;agent-instructions.md
+  action:
+    - key: create-page
+      name: Create a Page
+      description: Create a Page in a Space under a parent Page.
+      actionVerb: CREATE
+      function: createPage
+      inputs:
+        spaceId:
+          title: Space Id
+          description: ID of the Space where the new Page should live.
+          required: true
+          type: string
+        parentId:
+          title: Parent Id
+          description: ID of the parent Page where the new Page should live.
+          required: true
+          type: string
+        title:
+          title: Title
+          description: Title of the Page.
+          required: true
+          type: string
+        content:
+          title: Content
+          description: Content of the Page
+          required: true
+          type: string
+        status:
+          title: Status
+          description: The updated status of the Page.
+          required: false
+          type: string
+    - key: update-page
+      name: Update a Page
+      description: Update an existing Page with new content.
+      actionVerb: UPDATE
+      function: updatePage
+      inputs:
+        pageId:
+          title: Page Id
+          description: ID of the Page to be updated
+          required: true
+          type: string
+        title:
+          title: Title
+          description: Title of the Page.
+          required: true
+          type: string
+        content:
+          title: Content
+          description: Content of the Page
+          required: true
+          type: string
+        status:
+          title: Status
+          description: The updated status of the Page.
+          required: false
+          type: string
+    - key: add-comment
+      name: Add Comment
+      description: Adds a footer Comment on a parent Page.
+      actionVerb: CREATE
+      function: addComment
+      inputs:
+        comment:
+          title: Comment
+          description: The comment that needs to be added to the issue
+          required: true
+          type: string
+        pageId:
+          title: Page Id
+          description: The ID of the containing Page, where a comments needs to be added
+          required: true
+          type: string
+  trigger:
+    - key: trigger-lifecycle
+      events:
+        - avi:forge:installed:app
+        - avi:forge:upgraded:app
+      function: lifecycle-handler
+  function:
+    - key: createPage
+      handler: index.createPage
+    - key: updatePage
+      handler: index.updatePage
+    - key: addComment
+      handler: index.addComment
+    - key: lifecycle-handler
+      handler: index.lifecycle
+permissions:
+  scopes:
+    - write:page:confluence
+resources:
+  - key: agent-prompts
+    path: prompts
