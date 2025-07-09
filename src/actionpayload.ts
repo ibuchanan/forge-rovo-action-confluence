@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { CommonEventSchema } from "./forge/zevents";
+import { CommonEventSchema } from "./forge/events";
 import { RovoContextSchema } from "./rovo/action";
 
 export const CreatePagePayloadSchema = CommonEventSchema.extend({
