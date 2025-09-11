@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { EventContextSchema } from "../forge/zevents";
+import { EventContextSchema } from "../forge/events";
 
 const RovoProductDetailSchema = z.object({
   url: z.string().url(), // v4: z.url()
